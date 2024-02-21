@@ -212,7 +212,7 @@ class EndFiberViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = serializers.EndFiberSerializer(
                 data=request.data,
-                context={"id" :models.Receiver.objects.filter(id=self.request.user.id).values()[0]['id']})
+                context={"id" :models.Receiver.objects.filter(user=self.request.user.id).values()[0]['id']})
         serializer.is_valid(raise_exception=True)
         end_fiber = serializer.save()
         serializer = serializers.EndFiberSerializer(end_fiber)

@@ -14,7 +14,7 @@ gunicorn = "*"
 django-cryptography = "*"
 cryptography = "*"
 redis = "*"
-psycopg2 = "*"
+dj-database-url= "*"
 
 [dev-packages]
 

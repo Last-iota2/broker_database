@@ -1,0 +1,35 @@
+
+services:
+    web:
+      build: 
+        context: .
+        dockerfile: Dockerfile.prod
+      command: gunicorn broker_database.wsgi:application --bind 0.0.0.0:8000
+      # expose:
+      #   - 8000
+      ports:
+          - 8000:8000
+      volumes:
+          - static_volume:/home/app/web/staticfiles
+      env_file:
+          - ./.env.web
+      depends_on:
+        - db
+    # nginx:
+    #   build: ./nginx
+    #   ports:
+    #     - 1337:80
+    #   volumes:
+    #       - static_volume:/home/app/web/staticfiles
+    #   depends_on:
+    #     - web
+    db:
+      image: postgres
+      volumes:
+        - postgres_data:/var/lib/postgresql/data/
+      env_file:
+        - ./.env.db
+
+volumes:
+  postgres_data:
+  static_volume:
