@@ -23,16 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = os.environ['SECRET_KEY']
-# SECRET_KEY = 'django-insecure-lhxkmqpb%73_4jy64++!)34!d5ug)^)mf325#4w7hgt9d2$#r8'
+SECRET_KEY = 'django-insecure-lhxkmqpb%73_4jy64++!)34!d5ug)^)mf325#4w7hgt9d2$#r8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
+DEBUG = True
 
-# ALLOWED_HOSTS = ["*"]
-SECRET_KEY = os.environ.get("SECRET_KEY")
+ALLOWED_HOSTS = ["*"]
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = bool(os.environ.get("DEBUG", default=0))
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+# DEBUG = bool(os.environ.get("DEBUG", default=0))
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -97,36 +97,20 @@ SIMPLE_JWT = {
 WSGI_APPLICATION = 'broker_database.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 # DATABASES = {
-#     'default': dj_database_url.parse(os.environ.get('DATABASE_URL'), conn_max_age=600),
-# }
-# DATABASES = {
-#     'default': dj_database_url.parse("postgres://noor_database_user:SPxoUrKYVgjLXw9BBPj68yotu5LklUkL@dpg-cn089m8cmk4c73algjrg-a.oregon-postgres.render.com/noor_database", conn_max_age=600),
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         "NAME": "postgress",
-#         "USER": "postgres",
-#         "PASSWORD": "last2004",
-#         # 'HOST': 'localhost',
-#         # 'PORT': '',
-#     }
+#     'default': dj_database_url.parse("mysql://base-user:YofSBNNEfL*B$G%XK19%bNpJ@433750f85a734bc9b1fb1ba9a8e26631.db.arvandbaas.ir:3306/default", conn_max_age=600),
 # }
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        "NAME": "postgress",
+        "USER": "postgres",
+        "PASSWORD": "last2004",
+        # 'HOST': 'localhost',
+        # 'PORT': '',
     }
 }
+
 AUTH_USER_MODEL = 'core.User'
 
 DJOSER = {
