@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.timezone import datetime
 from .models import *
+import zoneinfo
 
 
 @admin.register(User)
@@ -55,3 +57,19 @@ class SettingsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.changed = True
         super().save_model(request, obj, form, change)
+
+
+@admin.register(Active)
+class ActiveAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'last_check', 'is_active', 'has_permision_to_work']
+    list_display_links = ["user"]
+    list_editable = ['has_permision_to_work']
+    readonly_fields = ['user']
+
+
+    @admin.display(boolean=True)
+    def is_active(self, active):
+        return (datetime.now(tz=zoneinfo.ZoneInfo("UTC"))- active.last_check).total_seconds() < 100
+
+    def save_model(self, request, obj, form, change):
+        obj.save(update_fields=["automatic", 'has_permision_to_work'])

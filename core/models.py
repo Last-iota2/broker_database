@@ -110,3 +110,10 @@ class Thresholds(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['setting', 'wavelength', 'thresholds_format_name'], name='unique together constraint')
         ]
+
+
+class Active(models.Model):
+    user = models.OneToOneField(User ,on_delete=models.CASCADE)
+    automatic = models.BooleanField(blank=True)
+    last_check = models.DateTimeField(auto_now=True)
+    has_permision_to_work = models.BooleanField(default=False, blank=True)

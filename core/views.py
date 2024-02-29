@@ -101,3 +101,45 @@ class AllSettingsViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(setting, many=True)
         return Response(serializer.data,status.HTTP_204_NO_CONTENT)
 
+
+class ActiveViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.ActiveAdminSerializer
+    queryset = models.Active.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = models.User.objects.filter(id=self.request.user.id).only('id')
+        if self.request.user.is_staff:
+            return models.Active.objects.all()
+        return models.Active.objects.filter(user__in = user.values_list("id"))   
+
+
+    def get_serializer_class(self):
+        if self.request.user.is_staff:
+            if self.request.method == "PUT" or self.request.method == "PATCH":
+                return serializers.UpdateActiveAdminSerializer
+            return serializers.ActiveAdminSerializer
+        return serializers.ActiveSerializer
+
+    def  get_serializer_context(self):
+        if self.request.method == "PUT" or self.request.method == "PATCH":
+            return {'user_id': self.kwargs['pk']}
+        return {"id" :self.request.user.id}
+
+    def create(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            serializer = serializers.ActiveAdminSerializer(
+                    data=request.data,
+                    context={"id" :self.request.user.id})
+            serializer.is_valid(raise_exception=True)
+            active = serializer.save()
+            serializer = serializers.ActiveAdminSerializer(active)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        serializer = serializers.ActiveSerializer(
+                    data=request.data,
+                    context={"id" :self.request.user.id})
+        serializer.is_valid(raise_exception=True)
+        active = serializer.save()
+        serializer = serializers.ActiveSerializer(active)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

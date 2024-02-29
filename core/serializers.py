@@ -1,9 +1,11 @@
 from django.db import transaction
 from django.db.models.functions import Now
+from django.utils.timezone import datetime
 from djoser.serializers import UserSerializer as BaseUserSerializer, UserCreateSerializer as BaseUserCreateSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from . import models
+import zoneinfo
 
 class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
@@ -67,11 +69,9 @@ class AllSettingsSerializers(serializers.ModelSerializer):
                 self.instance = models.AllSettings.objects.get(user=user_id)
             except:
                 self.instance = None
-            print(self.instance)
             if self.instance is not None:
                 setting = self.update(self.instance, validated_data)
             else:
-                print(self.instance)
                 setting = models.AllSettings.objects.create(user=user_id, changed=False)
                 models.ManualTestSettings.objects.create(setting=setting, **validated_data['manual_test_settings'])
                 models.Fiber.objects.create(setting=setting, **self.validated_data['fiber'])
@@ -92,4 +92,90 @@ class AllSettingsSerializers(serializers.ModelSerializer):
             return instance
 
 
-    
+class ActiveSerializer(serializers.ModelSerializer):
+    has_permision_to_work = serializers.BooleanField(read_only=True)
+    class Meta:
+        model = models.Active
+        fields = ["automatic", 'has_permision_to_work']
+
+    def save(self, **kwargs):
+        print(self.validated_data.items())
+        with transaction.atomic():
+            validated_data = {**self.validated_data, **kwargs}
+            user_id = models.User.objects.all().get(id=self.context['id'])
+            try:
+                self.instance = models.Active.objects.get(user=user_id)
+            except:
+                self.instance = None
+            if self.instance is not None:
+                active = self.update(self.instance, validated_data)
+            else:
+                active = models.Active.objects.create(user=user_id, **validated_data)
+            return active
+
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save(update_fields=["automatic", 'last_check'])
+            return instance
+
+
+class ActiveAdminSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    is_active = serializers.SerializerMethodField()
+
+    def get_is_active(self, active=models.Active):  
+        if (datetime.now(tz=zoneinfo.ZoneInfo("UTC"))- active.last_check).total_seconds() > 100:
+            return False
+        return True
+
+
+    class Meta:
+        model = models.Active
+        fields = ['id' ,'user' ,"automatic", 'is_active', 'has_permision_to_work']
+
+    def save(self, **kwargs):
+        with transaction.atomic():
+            validated_data = {**self.validated_data, **kwargs}
+            user_id = models.User.objects.all().get(id=self.context['id'])
+            try:
+                self.instance = models.Active.objects.get(user=user_id)
+            except:
+                self.instance = None
+            if self.instance is not None:
+                active = self.update(self.instance, validated_data)
+            else:
+                active = models.Active.objects.create(user=user_id, **validated_data)
+            return active
+
+
+class UpdateActiveAdminSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    is_active = serializers.SerializerMethodField()
+
+    def get_is_active(self, active=models.Active):  
+        if (datetime.now(tz=zoneinfo.ZoneInfo("UTC"))- active.last_check).total_seconds() > 100:
+            return False
+        return True
+
+
+    class Meta:
+        model = models.Active
+        fields = ['id' ,'user' ,"automatic" ,'is_active' ,'has_permision_to_work']
+
+    def save(self, **kwargs):
+        with transaction.atomic():
+            validated_data = {**self.validated_data, **kwargs}
+            self.instance = models.Active.objects.all().get(id=self.context["user_id"])
+            active = self.update(self.instance, validated_data)
+            return active
+
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            date = instance.last_check
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            print(validated_data.items())
+            instance.save(update_fields=["automatic", 'has_permision_to_work'])
+            return instance

@@ -7,6 +7,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register('settings', views.AllSettingsViewSet, basename='device-configure')
+router.register('active', views.ActiveViewSet)
 
 from django.contrib.auth import views as auth_views
 
