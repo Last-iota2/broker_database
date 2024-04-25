@@ -1,8 +1,10 @@
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
+from .pagination import DefaultPagination
 from . import models, serializers, filters
 
 
@@ -51,6 +53,7 @@ class BrowserViewSet(viewsets.ModelViewSet):
 class AlarmListViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     serializer_class = serializers.AlarmListSerializer
+    # pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.AlarmListFilter
@@ -62,21 +65,51 @@ class AlarmListViewSet(viewsets.ModelViewSet):
             return models.AlarmList.objects.prefetch_related('browse').all()
         return models.AlarmList.objects.prefetch_related('browse').filter(browse__in = browser.values_list("id"))
 
+        
+    def create(self, request, *args, **kwargs):
+        if isinstance(request.data['alarm_list'], list):
+            serializer = serializers.AlarmListCreateSerializer(data=request.data)
+        else:
+            serializer = serializers.AlarmListSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
 
 class ArrayDataViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = models.ArrayData.objects.prefetch_related('browse').all()
-    serializer_class = serializers.ArrayDataSerializer
+    serializer_class = serializers.ArrayDataViewSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.ArrayDataFilter
 
-    def get_queryset(self):
-        receiver = models.Receiver.objects.prefetch_related("user").filter(user=self.request.user.id).only('id')
-        browser = models.Browser.objects.prefetch_related("receiver").filter(receiver=receiver.values()[0]['id']).only('id')
-        if self.request.user.is_staff:
-            return models.ArrayData.objects.prefetch_related('browse').all()
-        return models.ArrayData.objects.prefetch_related('browse').filter(browse__in = browser.values_list("id"))
+
+def download_file(request,folder, file_name):
+    uploaded_file = models.ArrayData.objects.get(array_data= folder + '/' + file_name)
+    response = HttpResponse(uploaded_file.array_data, content_type='application/force-download')
+    response['Content-Disposition'] = f'attachment; filename="{uploaded_file.array_data.name}"'
+    return response
+
+    # def get_queryset(self):
+    #     receiver = models.Receiver.objects.prefetch_related("user").filter(user=self.request.user.id).only('id')
+    #     browser = models.Browser.objects.prefetch_related("receiver").filter(receiver=receiver.values()[0]['id']).only('id')
+    #     if self.request.user.is_staff:
+    #         return models.ArrayData.objects.prefetch_related('browse').all()
+    #     return models.ArrayData.objects.prefetch_related('browse').filter(browse__in = browser.values_list("id"))
+
+    
+    # def create(self, request, *args, **kwargs):
+    #     if isinstance(request.data['array_data'], list):
+    #         serializer = serializers.ArrayDataSerializer(data=request.data)
+    #     else:
+    #         serializer = serializers.ArrayDataViewSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class EventIndexPlotViewSet(viewsets.ModelViewSet):
@@ -93,6 +126,17 @@ class EventIndexPlotViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return models.EventIndexPlot.objects.prefetch_related('browse').all()
         return models.EventIndexPlot.objects.prefetch_related('browse').filter(browse__in = browser.values_list("id"))
+    
+    def create(self, request, *args, **kwargs):
+        if isinstance(request.data['event_index_plot'], list):
+            serializer = serializers.EventIndexPlotCreateSerializer(data=request.data)
+        else:
+            serializer = serializers.EventIndexPlotSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 
 class EventLocationPrintViewSet(viewsets.ModelViewSet):
@@ -109,6 +153,17 @@ class EventLocationPrintViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return models.EventLocationPrint.objects.prefetch_related('browse').all()
         return models.EventLocationPrint.objects.prefetch_related('browse').filter(browse__in = browser.values_list("id"))
+    
+    def create(self, request, *args, **kwargs):
+        if isinstance(request.data['event_location_print'], list):
+            serializer = serializers.EventLocationPrintCreateSerializer(data=request.data)
+        else:
+            serializer = serializers.EventLocationPrintSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 
 class TableListViewSet(viewsets.ModelViewSet):
@@ -125,6 +180,17 @@ class TableListViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return models.TableList.objects.prefetch_related('browse').all()
         return models.TableList.objects.prefetch_related('browse').filter(browse__in = browser.values_list("id"))
+
+
+    def create(self, request, *args, **kwargs):
+        # if isinstance(request.data[''], list):
+        serializer = serializers.TableListCreateSerializer(data=request.data)
+        # else:
+            # serializer = serializers.TableListSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class XDataViewSet(viewsets.ModelViewSet):
@@ -160,12 +226,12 @@ class AlarmTableViewSet(viewsets.ModelViewSet):
 
     
     def create(self, request, *args, **kwargs):
-        serializer = serializers.AlarmTableSerializer(
+        serializer = serializers.AlarmTableCreateSerializer(
                 data=request.data,
                 context={"date" :models.Browser.objects.filter(id=self.request.data["browse"]).values()[0]['date']})
         serializer.is_valid(raise_exception=True)
         browser = serializer.save()
-        serializer = serializers.AlarmTableSerializer(browser)
+        # serializer = serializers.AlarmTableSerializer(browser)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 

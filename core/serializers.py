@@ -99,7 +99,7 @@ class ActiveSerializer(serializers.ModelSerializer):
         fields = ["automatic", 'has_permision_to_work']
 
     def save(self, **kwargs):
-        print(self.validated_data.items())
+        # print(self.validated_data.items())
         with transaction.atomic():
             validated_data = {**self.validated_data, **kwargs}
             user_id = models.User.objects.all().get(id=self.context['id'])
@@ -155,10 +155,7 @@ class UpdateActiveAdminSerializer(serializers.ModelSerializer):
     is_active = serializers.SerializerMethodField()
 
     def get_is_active(self, active=models.Active):  
-        if (datetime.now(tz=zoneinfo.ZoneInfo("UTC"))- active.last_check).total_seconds() > 100:
-            return False
-        return True
-
+        return (datetime.now(tz=zoneinfo.ZoneInfo("UTC"))- active.last_check).total_seconds() < 100
 
     class Meta:
         model = models.Active

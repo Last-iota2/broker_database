@@ -1,4 +1,4 @@
-from rest_framework import routers
+from rest_framework_nested import routers
 from . import views
 
 
@@ -14,4 +14,8 @@ router.register('alarm_table', views.AlarmTableViewSet, basename="alarm_table")
 router.register('system_alarm', views.SystemAlarmViewSet, basename="system_alarm")
 router.register('end_fiber', views.EndFiberViewSet, basename="end_fiber")
 
-urlpatterns = router.urls
+
+# array_data_router = routers.NestedDefaultRouter(router, 'array_data', lookup='array_data')
+# array_data_router.register('files', views.download_file, basename='array-files')
+
+urlpatterns = router.urls 

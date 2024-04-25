@@ -32,7 +32,11 @@ class AlarmList(models.Model):
 
 class ArrayData(models.Model):
     browse = models.ForeignKey(Browser,on_delete=models.PROTECT,null=False, blank=False)
-    array_data = models.FloatField()
+    # array_data = models.FloatField()
+    array_data = models.FileField(upload_to="array_data")
+
+# class ArrayDataFiles(models.Model):
+#     array_data = models.OneToOneField
 
 
 class EventIndexPlot(models.Model):
@@ -53,7 +57,7 @@ class TableList(models.Model):
     loss = models.FloatField()
     orl = models.FloatField()
     att = models.FloatField()
-    section_loss = models.FloatField()
+    section_loss = models.FloatField(default=0)
     length_shift = models.FloatField()
 
 

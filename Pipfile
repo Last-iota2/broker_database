@@ -16,6 +16,9 @@ cryptography = "*"
 redis = "*"
 dj-database-url= "*"
 whitenoise = "*"
+locust = "*"
+celery = "*"
+drf-nested-routers = "*"
 
 [dev-packages]
 
