@@ -53,7 +53,7 @@ class BrowserViewSet(viewsets.ModelViewSet):
 class AlarmListViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     serializer_class = serializers.AlarmListSerializer
-    # pagination_class = DefaultPagination
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.AlarmListFilter
@@ -82,6 +82,7 @@ class ArrayDataViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = models.ArrayData.objects.prefetch_related('browse').all()
     serializer_class = serializers.ArrayDataViewSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.ArrayDataFilter
@@ -116,9 +117,11 @@ class EventIndexPlotViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = models.EventIndexPlot.objects.prefetch_related('browse').all()
     serializer_class = serializers.EventIndexPlotSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.EventIndexPlotFilter
+
 
     def get_queryset(self):
         receiver = models.Receiver.objects.prefetch_related("user").filter(user=self.request.user.id).only('id')
@@ -143,6 +146,7 @@ class EventLocationPrintViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = models.EventLocationPrint.objects.prefetch_related('browse').all()
     serializer_class = serializers.EventLocationPrintSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.EventLocationPrintFilter
@@ -170,6 +174,7 @@ class TableListViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = models.TableList.objects.prefetch_related('browse').all()
     serializer_class = serializers.TableListSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.TableListFilter
@@ -197,6 +202,7 @@ class XDataViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     queryset = models.XData.objects.prefetch_related('browse').all()
     serializer_class = serializers.XDataSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.XDataFilter
@@ -213,6 +219,7 @@ class XDataViewSet(viewsets.ModelViewSet):
 class AlarmTableViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     serializer_class = serializers.AlarmTableSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.AlarmTableFilter
@@ -238,6 +245,7 @@ class AlarmTableViewSet(viewsets.ModelViewSet):
 class SystemAlarmViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     serializer_class = serializers.SystemAlarmSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.SystemAlarmFilter
@@ -263,6 +271,7 @@ class SystemAlarmViewSet(viewsets.ModelViewSet):
 class EndFiberViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post']
     serializer_class = serializers.EndFiberSerializer
+    pagination_class = DefaultPagination
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = filters.EndFiberFilter
